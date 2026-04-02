@@ -1,0 +1,13 @@
+:root {
+  --q-dark: #1f2128;
+  --q-accent: #d6ff33;
+  --q-muted: #7e8395;
+  --q-surface: #f5f5f5;
+  --q-danger: #ff3333;
+  --q-star: #ffbe33;
+  --q-border: #d6d6db;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
