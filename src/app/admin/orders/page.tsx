@@ -1,10 +1,9 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Header } from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
+import { AdminNav } from '@/app/components/AdminNav';
 import { Button } from '@/app/components/Button';
 import { Send } from 'lucide-react';
 
@@ -76,34 +75,6 @@ const INITIAL_ORDERS: Order[] = [
   },
 ];
 
-// ─── Admin Nav ───────────────────────────────────────────────────────────────
-
-function AdminNav() {
-  const pathname = usePathname();
-  const navItems = [
-    { label: 'Добавление товара', href: '/admin' },
-    { label: 'Удаление товара', href: '/admin/remove' },
-    { label: 'Изменение товара', href: '/admin/edit' },
-    { label: 'Заказы', href: '/admin/orders' },
-  ];
-
-  return (
-    <div className="flex flex-col gap-3">
-      {navItems.map((item) => (
-        <Link key={item.href} href={item.href} className="no-underline w-full">
-          <Button
-            variant={pathname === item.href ? 'dark' : 'outline'}
-            size="md"
-            fullWidth
-          >
-            {item.label}
-          </Button>
-        </Link>
-      ))}
-    </div>
-  );
-}
-
 // ─── Star Rating ─────────────────────────────────────────────────────────────
 
 function StarRating({ rating, max }: { rating: number; max: number }) {
@@ -112,10 +83,10 @@ function StarRating({ rating, max }: { rating: number; max: number }) {
       <svg width="16" height="15" viewBox="0 0 16 15" fill="none">
         <path
           d="M6.89 0.526C7.16-0.175 8.15-0.175 8.43 0.526L10.05 4.718L14.54 4.968C15.29 5.01 15.6 5.953 15.02 6.427L11.53 9.268L12.68 13.615C12.87 14.342 12.07 14.924 11.44 14.517L7.66 12.081L3.88 14.517C3.25 14.924 2.45 14.342 2.64 13.615L3.79 9.268L0.304 6.427C-0.278 5.953 0.028 5.01 0.779 4.968L5.27 4.718L6.89 0.526Z"
-          fill="#FFBE33"
+          fill="var(--q-star)"
         />
       </svg>
-      <span className="text-[#1F2128] text-base font-medium">
+      <span className="text-q-dark text-base font-medium">
         {rating}/{max}
       </span>
     </div>
@@ -132,7 +103,7 @@ function OrderCard({
   onShip: (id: string) => void;
 }) {
   return (
-    <div className="relative rounded-[20px] w-full border border-[#D6D6DB]">
+    <div className="relative rounded-q-card w-full border border-q-border">
       <div className="flex flex-col gap-5 p-6 sm:p-8">
         {/* Products + Details row */}
         <div className="flex flex-col lg:flex-row gap-5 lg:gap-8 items-start">
@@ -140,13 +111,13 @@ function OrderCard({
           <div className="flex flex-col gap-5 flex-1 min-w-0">
             {order.products.map((product, idx) => (
               <div key={product.id}>
-                {idx > 0 && <div className="h-px bg-[#D6D6DB] mb-5" />}
+                {idx > 0 && <div className="h-px bg-q-border mb-5" />}
                 <div className="flex items-center justify-between gap-4">
-                  <p className="text-[#7E8395] text-base font-medium flex-1 min-w-0">
+                  <p className="text-q-muted text-base font-medium flex-1 min-w-0">
                     {product.name}
                   </p>
                   <div className="flex flex-col items-end gap-1.5 shrink-0">
-                    <p className="text-[#1F2128] text-base font-medium text-right">
+                    <p className="text-q-dark text-base font-medium text-right">
                       {product.price} $
                     </p>
                     <StarRating rating={product.rating} max={product.maxRating} />
@@ -157,28 +128,28 @@ function OrderCard({
           </div>
 
           {/* Vertical divider (hidden on mobile) */}
-          <div className="hidden lg:block w-px self-stretch bg-[#D6D6DB] shrink-0" />
+          <div className="hidden lg:block w-px self-stretch bg-q-border shrink-0" />
 
           {/* Order details */}
           <div className="flex flex-col gap-5 flex-1 min-w-0 text-base font-medium">
-            <p className="text-[#7E8395]">{order.date}</p>
-            <p className="text-[#7E8395]">{order.customerName}</p>
+            <p className="text-q-muted">{order.date}</p>
+            <p className="text-q-muted">{order.customerName}</p>
 
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[#7E8395]">ID</span>
-              <span className="text-[#1F2128] text-right">{order.orderId}</span>
+              <span className="text-q-muted">ID</span>
+              <span className="text-q-dark text-right">{order.orderId}</span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[#7E8395]">Телефон</span>
-              <span className="text-[#1F2128] text-right">{order.phone}</span>
+              <span className="text-q-muted">Телефон</span>
+              <span className="text-q-dark text-right">{order.phone}</span>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[#7E8395]">Эл. почта</span>
-              <span className="text-[#1F2128] text-right">{order.email}</span>
+              <span className="text-q-muted">Эл. почта</span>
+              <span className="text-q-dark text-right">{order.email}</span>
             </div>
             <div className="flex items-start justify-between gap-2">
-              <span className="text-[#7E8395] shrink-0">Адрес доставки</span>
-              <span className="text-[#1F2128] text-right">{order.address}</span>
+              <span className="text-q-muted shrink-0">Адрес доставки</span>
+              <span className="text-q-dark text-right">{order.address}</span>
             </div>
           </div>
         </div>
@@ -186,14 +157,14 @@ function OrderCard({
         {/* Action button */}
         <div className="flex justify-end">
           {order.shipped ? (
-            <div className="inline-flex items-center gap-2.5 px-[18px] py-3 rounded-full border border-[#D6D6DB] text-[#7E8395] text-base font-medium cursor-default select-none">
+            <div className="inline-flex items-center gap-2.5 px-[18px] py-3 rounded-full border border-q-border text-q-muted text-base font-medium cursor-default select-none">
               Отправлено
               <Send size={16} className="opacity-50" />
             </div>
           ) : (
             <button
               onClick={() => onShip(order.id)}
-              className="inline-flex items-center gap-2.5 px-[18px] py-3 rounded-full bg-[#D6FF33] text-[#1F2128] text-base font-medium hover:bg-[#c8f020] active:scale-95 transition-all duration-150 cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-[18px] py-3 rounded-full bg-q-accent text-q-dark text-base font-medium hover:bg-q-accent-soft active:scale-95 transition-all duration-150 cursor-pointer"
             >
               Отправить
               <Send size={16} />
@@ -233,8 +204,8 @@ function FilterBar({
           className={[
             'px-4 py-2 rounded-full text-sm font-medium transition-all duration-150 cursor-pointer',
             active === tab.key
-              ? 'bg-[#1F2128] text-white'
-              : 'border border-[#D6D6DB] text-[#7E8395] hover:border-[#1F2128] hover:text-[#1F2128]',
+              ? 'bg-q-dark text-white'
+              : 'border border-q-border text-q-muted hover:border-q-dark hover:text-q-dark',
           ].join(' ')}
         >
           {tab.label}
@@ -277,15 +248,15 @@ export default function AdminOrdersPage() {
           {/* Orders list */}
           <div className="w-full lg:flex-1 min-w-0">
             <div className="flex flex-col gap-8">
-              <h1 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08]">
+              <h1 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08]">
                 Заказы
               </h1>
 
               <FilterBar active={filter} onChange={setFilter} counts={counts} />
 
               {filteredOrders.length === 0 ? (
-                <div className="rounded-[20px] border border-[#D6D6DB] p-12 flex items-center justify-center">
-                  <p className="text-[#7E8395] text-base font-medium">
+                <div className="rounded-q-card border border-q-border p-12 flex items-center justify-center">
+                  <p className="text-q-muted text-base font-medium">
                     {filter === 'pending'
                       ? 'Нет заказов, ожидающих отправки'
                       : filter === 'shipped'
@@ -305,7 +276,7 @@ export default function AdminOrdersPage() {
 
           {/* Admin nav */}
           <div className="w-full lg:w-[315px] shrink-0">
-            <AdminNav />
+            <AdminNav layout="stack" />
           </div>
         </div>
       </main>

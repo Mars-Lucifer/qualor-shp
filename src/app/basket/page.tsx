@@ -48,8 +48,8 @@ export default function BasketPage() {
       <main className="px-4 sm:px-6 xl:px-[60px] max-w-[1440px] mx-auto py-8 sm:py-10">
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-6">
-            <ShoppingCart size={64} className="text-[#D6D6DB]" />
-            <p className="text-[#7E8395] text-2xl font-medium">Корзина пуста</p>
+            <ShoppingCart size={64} className="text-q-border" />
+            <p className="text-q-muted text-2xl font-medium">Корзина пуста</p>
             <Link href="/catalog">
               <Button variant="dark">Перейти в каталог</Button>
             </Link>
@@ -58,7 +58,7 @@ export default function BasketPage() {
           <div className="flex flex-col lg:flex-row gap-8 xl:gap-10 items-start">
             {/* Cart items */}
             <div className="flex-1 min-w-0 flex flex-col gap-8 sm:gap-10">
-              <h1 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08]">
+              <h1 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08]">
                 Ваша корзина
               </h1>
 
@@ -66,7 +66,7 @@ export default function BasketPage() {
                 {cart.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-[20px] border border-[#D6D6DB] p-6 sm:p-8 flex gap-4 sm:gap-5 items-start transition-all duration-200 hover:shadow-sm"
+                    className="rounded-q-card border border-q-border p-6 sm:p-8 flex gap-4 sm:gap-5 items-start transition-all duration-200 hover:shadow-sm"
                   >
                     <div className="size-[120px] sm:size-[150px] shrink-0">
                       <img
@@ -76,17 +76,17 @@ export default function BasketPage() {
                       />
                     </div>
                     <div className="flex flex-col gap-4 flex-1 min-w-0 self-stretch">
-                      <p className="text-[#1F2128] text-xl sm:text-2xl font-medium leading-[1.08] flex-1">
+                      <p className="text-q-dark text-xl sm:text-2xl font-medium leading-[1.08] flex-1">
                         {item.name}
                       </p>
                       <div className="flex items-end justify-between">
                         <div className="flex items-end gap-1 font-medium leading-[1.08] whitespace-nowrap">
-                          <span className="text-[#1F2128] text-2xl">{item.price.toLocaleString('ru-RU')}</span>
-                          <span className="text-[#7E8395] text-[18px]">$</span>
+                          <span className="text-q-dark text-2xl">{item.price.toLocaleString('ru-RU')}</span>
+                          <span className="text-q-muted text-[18px]">$</span>
                         </div>
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="size-10 rounded-full bg-[#FF3333] flex items-center justify-center text-white hover:bg-[#e62020] transition-all duration-150 active:scale-90 shrink-0"
+                          className="size-10 rounded-full bg-q-danger flex items-center justify-center text-white hover:bg-q-danger-soft transition-all duration-150 active:scale-90 shrink-0"
                           aria-label="Удалить из корзины"
                         >
                           <X size={18} />
@@ -100,8 +100,8 @@ export default function BasketPage() {
 
             {/* Checkout panel */}
             <div className="w-full lg:w-[600px] xl:w-[650px] shrink-0">
-              <div className="bg-[#F5F5F5] rounded-[32px] p-8 flex flex-col gap-10">
-                <h2 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08]">
+              <div className="bg-q-surface rounded-q-panel p-8 flex flex-col gap-10">
+                <h2 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08]">
                   Итого
                 </h2>
 
@@ -138,8 +138,8 @@ export default function BasketPage() {
                   <div className="flex flex-col gap-3 mt-2">
                     <div className="flex items-center gap-5">
                       <div className="flex items-end gap-1 font-medium leading-[1.08] whitespace-nowrap flex-1">
-                        <span className="text-[#1F2128] text-[40px]">{total.toLocaleString('ru-RU')}</span>
-                        <span className="text-[#7E8395] text-2xl">$</span>
+                        <span className="text-q-dark text-[40px]">{total.toLocaleString('ru-RU')}</span>
+                        <span className="text-q-muted text-2xl">$</span>
                       </div>
                       <Button
                         variant="accent"
@@ -151,9 +151,9 @@ export default function BasketPage() {
                         Оплатить
                       </Button>
                     </div>
-                    <p className="text-[#7E8395] text-sm font-normal">
+                    <p className="text-q-muted text-sm font-normal">
                       Нажимая кнопку оплаты, вы подтверждаете согласие с{' '}
-                      <a href="#" className="text-[#1F2128] font-medium no-underline hover:underline">
+                      <a href="#" className="text-q-dark font-medium no-underline hover:underline">
                         условиями оферты
                       </a>
                     </p>

@@ -1,38 +1,12 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Header } from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
+import { AdminNav } from '@/app/components/AdminNav';
 import { Button } from '@/app/components/Button';
 import { InputWhite } from '@/app/components/Input';
 import { Trash2 } from 'lucide-react';
-
-function AdminNav() {
-  const pathname = usePathname();
-  const navItems = [
-    { label: 'Добавление товара', href: '/admin' },
-    { label: 'Удаление товара', href: '/admin/remove' },
-    { label: 'Изменение товара', href: '/admin/edit' },
-    { label: 'Заказы', href: '/admin/orders' },
-  ];
-
-  return (
-    <div className="flex flex-wrap gap-3">
-      {navItems.map((item) => (
-        <Link key={item.href} href={item.href} className="no-underline">
-          <Button
-            variant={pathname === item.href ? 'dark' : 'outline'}
-            size="md"
-          >
-            {item.label}
-          </Button>
-        </Link>
-      ))}
-    </div>
-  );
-}
 
 export default function AdminRemovePage() {
   const [productId, setProductId] = useState('');
@@ -55,8 +29,8 @@ export default function AdminRemovePage() {
         <div className="flex flex-col lg:flex-row gap-8 xl:gap-10 items-start">
           {/* Form panel */}
           <div className="w-full lg:w-[48%] xl:w-[600px] shrink-0">
-            <div className="bg-[#F5F5F5] rounded-[32px] p-8 flex flex-col gap-8">
-              <h1 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08]">
+            <div className="bg-q-surface rounded-q-panel p-8 flex flex-col gap-8">
+              <h1 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08]">
                 Удалить товар
               </h1>
 

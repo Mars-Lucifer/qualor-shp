@@ -1,4 +1,4 @@
-import { ShoppingCart, ImageOff } from "lucide-react";
+﻿import { ShoppingCart, ImageOff } from "lucide-react";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -17,10 +17,10 @@ export function ProductCard({
   onAddToCart,
 }: ProductCardProps) {
   return (
-    <div className="group relative rounded-[14px] border border-[#D6D6DB] overflow-hidden bg-white transition-all duration-200 hover:-translate-y-0.5 cursor-pointer flex flex-col">
+    <div className="group relative rounded-q-input border border-q-border overflow-hidden bg-white transition-all duration-200 hover:-translate-y-0.5 cursor-pointer flex flex-col">
       <Link href={`/item/${id}`} className="no-underline flex flex-col flex-1">
         {/* Image area */}
-        <div className="h-[170px] border-b border-[#D6D6DB] flex items-center justify-center bg-white overflow-hidden shrink-0">
+        <div className="h-[170px] border-b border-q-border flex items-center justify-center bg-white overflow-hidden shrink-0">
           {image ? (
             <img
               src={image}
@@ -29,24 +29,24 @@ export function ProductCard({
             />
           ) : (
             <div className="flex items-center justify-center size-full">
-              <ImageOff size={40} className="text-[#D6D6DB]" />
+              <ImageOff size={40} className="text-q-border" />
             </div>
           )}
         </div>
 
         {/* Content */}
         <div className="flex flex-col gap-4 p-4 flex-1">
-          <p className="text-[#1F2128] text-[20px] font-medium leading-normal flex-1">
+          <p className="text-q-dark text-[20px] font-medium leading-normal flex-1">
             {name}
           </p>
 
           <div className="flex items-end justify-between">
             {/* Price */}
             <div className="flex items-end gap-1 leading-[1.08] font-medium whitespace-nowrap">
-              <span className="text-[#1F2128] text-2xl">
+              <span className="text-q-dark text-2xl">
                 {price.toLocaleString("ru-RU")}
               </span>
-              <span className="text-[#7E8395] text-[18px]">$</span>
+              <span className="text-q-muted text-[18px]">$</span>
             </div>
 
             {/* Cart button */}
@@ -56,7 +56,7 @@ export function ProductCard({
                 e.stopPropagation();
                 onAddToCart?.();
               }}
-              className="size-10 rounded-full border border-[#D6D6DB] flex items-center justify-center text-[#1F2128] hover:bg-[#1F2128] hover:text-white hover:border-[#1F2128] transition-all duration-150 active:scale-90 shrink-0"
+              className="size-10 rounded-full border border-q-border flex items-center justify-center text-q-dark hover:bg-q-dark hover:text-white hover:border-q-dark transition-all duration-150 active:scale-90 shrink-0"
               aria-label="Добавить в корзину"
             >
               <ShoppingCart size={16} />

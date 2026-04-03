@@ -56,7 +56,7 @@ function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
         <Star
           key={i}
           size={18}
-          fill={i < rating ? '#FFBE33' : '#7E8395'}
+          fill={i < rating ? 'var(--q-star)' : 'var(--q-muted)'}
           stroke="none"
         />
       ))}
@@ -96,13 +96,13 @@ export default function ItemPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setCurrentImage((c) => (c - 1 + product.images.length) % product.images.length)}
-                  className="size-11 rounded-full border border-[#1F2128] flex items-center justify-center text-[#7E8395] hover:bg-[#1F2128] hover:text-white transition-all duration-150 active:scale-90"
+                  className="size-11 rounded-full border border-q-dark flex items-center justify-center text-q-muted hover:bg-q-dark hover:text-white transition-all duration-150 active:scale-90"
                 >
                   <ChevronLeft size={18} />
                 </button>
                 <button
                   onClick={() => setCurrentImage((c) => (c + 1) % product.images.length)}
-                  className="size-11 rounded-full border border-[#1F2128] flex items-center justify-center text-[#7E8395] hover:bg-[#1F2128] hover:text-white transition-all duration-150 active:scale-90"
+                  className="size-11 rounded-full border border-q-dark flex items-center justify-center text-q-muted hover:bg-q-dark hover:text-white transition-all duration-150 active:scale-90"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -114,12 +114,12 @@ export default function ItemPage() {
           <div className="flex flex-col gap-10 flex-1 min-w-0">
             {/* Title & rating */}
             <div className="flex flex-col gap-3.5">
-              <h1 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08]">
+              <h1 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08]">
                 {product.name}
               </h1>
               <div className="flex items-center gap-3.5">
                 <StarRating rating={product.rating} />
-                <span className="text-[#7E8395] text-base font-medium">
+                <span className="text-q-muted text-base font-medium">
                   {product.reviews} отзывов
                 </span>
               </div>
@@ -129,8 +129,8 @@ export default function ItemPage() {
             <div className="flex flex-col gap-3.5">
               {product.specs.map((spec) => (
                 <div key={spec.label} className="flex items-center justify-between text-base font-medium">
-                  <span className="text-[#7E8395]">{spec.label}</span>
-                  <span className="text-[#1F2128] text-right">{spec.value}</span>
+                  <span className="text-q-muted">{spec.label}</span>
+                  <span className="text-q-dark text-right">{spec.value}</span>
                 </div>
               ))}
             </div>
@@ -138,8 +138,8 @@ export default function ItemPage() {
             {/* Price & cart */}
             <div className="flex items-center gap-5">
               <div className="flex items-end gap-1 leading-[1.08] font-medium flex-1">
-                <span className="text-[#1F2128] text-[40px]">{product.price.toLocaleString('ru-RU')}</span>
-                <span className="text-[#7E8395] text-2xl">$</span>
+                <span className="text-q-dark text-[40px]">{product.price.toLocaleString('ru-RU')}</span>
+                <span className="text-q-muted text-2xl">$</span>
               </div>
               <Button
                 variant={added ? 'dark' : 'accent'}

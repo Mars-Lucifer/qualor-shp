@@ -1,12 +1,12 @@
-export function Footer() {
+﻿export function Footer() {
   return (
     <footer className="w-full px-4 sm:px-6 xl:px-[60px] pb-16 sm:pb-20">
       <div className="max-w-[1320px] mx-auto">
-        <div className="h-0.5 bg-[#F5F5F5] w-full mb-8 sm:mb-10" />
+        <div className="h-0.5 bg-q-surface w-full mb-8 sm:mb-10" />
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Social */}
           <div className="flex flex-col gap-5">
-            <p className="text-[#1F2128] text-2xl font-medium leading-[1.08]">Соц сети</p>
+            <p className="text-q-dark text-2xl font-medium leading-[1.08]">Соц сети</p>
             <div className="flex items-center gap-3.5">
               <a
                 href="https://t.me/qship"
@@ -43,17 +43,17 @@ export function Footer() {
 
           {/* Contacts */}
           <div className="flex flex-col gap-5">
-            <p className="text-[#1F2128] text-2xl font-medium leading-[1.08]">Контакты</p>
+            <p className="text-q-dark text-2xl font-medium leading-[1.08]">Контакты</p>
             <div className="flex flex-col gap-5">
               <a
                 href="tel:88005553535"
-                className="text-[#7E8395] text-base font-medium no-underline hover:text-[#1F2128] transition-colors duration-150"
+                className="text-q-muted text-base font-medium no-underline hover:text-q-dark transition-colors duration-150"
               >
                 8 800 555-35-35
               </a>
               <a
                 href="mailto:help@qship.ru"
-                className="text-[#7E8395] text-base font-medium no-underline hover:text-[#1F2128] transition-colors duration-150"
+                className="text-q-muted text-base font-medium no-underline hover:text-q-dark transition-colors duration-150"
               >
                 help@qship.ru
               </a>
@@ -70,14 +70,14 @@ export function Footer() {
                     fill="white"
                   />
                 </svg>
-                <span className="text-[#7E8395] text-base font-medium">@qship</span>
+                <span className="text-q-muted text-base font-medium">@qship</span>
               </a>
             </div>
           </div>
 
           {/* Documents */}
           <div className="flex flex-col gap-5">
-            <p className="text-[#1F2128] text-2xl font-medium leading-[1.08]">Документы</p>
+            <p className="text-q-dark text-2xl font-medium leading-[1.08]">Документы</p>
             <div className="flex flex-col gap-5">
               {[
                 'Пользовательское соглашение',
@@ -88,7 +88,7 @@ export function Footer() {
                 <a
                   key={doc}
                   href="#"
-                  className="text-[#7E8395] text-base font-medium no-underline hover:text-[#1F2128] transition-colors duration-150"
+                  className="text-q-muted text-base font-medium no-underline hover:text-q-dark transition-colors duration-150"
                 >
                   {doc}
                 </a>
@@ -98,11 +98,11 @@ export function Footer() {
 
           {/* Company data */}
           <div className="flex flex-col gap-5">
-            <p className="text-[#1F2128] text-2xl font-medium leading-[1.08]">Данные</p>
+            <p className="text-q-dark text-2xl font-medium leading-[1.08]">Данные</p>
             <div className="flex flex-col gap-5">
-              <p className="text-[#7E8395] text-base font-medium">ИНН: 123456789</p>
-              <p className="text-[#7E8395] text-base font-medium">ООО "TechMarket"</p>
-              <p className="text-[#7E8395] text-base font-medium">
+              <p className="text-q-muted text-base font-medium">ИНН: 123456789</p>
+              <p className="text-q-muted text-base font-medium">ООО "TechMarket"</p>
+              <p className="text-q-muted text-base font-medium">
                 Город Тоски, улица грусти, переулок отчаяния, дом 13
               </p>
             </div>

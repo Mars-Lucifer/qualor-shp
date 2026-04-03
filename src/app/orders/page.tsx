@@ -44,7 +44,7 @@ function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
         <Star
           key={i}
           size={18}
-          fill={i < rating ? '#FFBE33' : '#D6D6DB'}
+          fill={i < rating ? 'var(--q-star)' : 'var(--q-border)'}
           stroke="none"
         />
       ))}
@@ -59,7 +59,7 @@ export default function OrdersPage() {
 
       <main className="px-4 sm:px-6 xl:px-[60px] max-w-[1440px] mx-auto py-8 sm:py-10">
         <div className="flex flex-col items-center gap-10">
-          <h1 className="text-[#1F2128] text-[36px] sm:text-[48px] font-medium leading-[1.08] self-center">
+          <h1 className="text-q-dark text-[36px] sm:text-[48px] font-medium leading-[1.08] self-center">
             История заказов
           </h1>
 
@@ -67,17 +67,17 @@ export default function OrdersPage() {
             {ORDERS.map((order) => (
               <div
                 key={order.id}
-                className="rounded-[20px] border border-[#D6D6DB] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-5 transition-all duration-200 hover:shadow-sm"
+                className="rounded-q-card border border-q-border p-6 sm:p-8 flex flex-col sm:flex-row gap-6 sm:gap-5 transition-all duration-200 hover:shadow-sm"
               >
                 {/* Items */}
                 <div className="flex-1 min-w-0 flex flex-col gap-5">
                   {order.items.map((item, i) => (
                     <div key={item.name}>
-                      {i > 0 && <div className="h-px bg-[#D6D6DB] mb-5" />}
+                      {i > 0 && <div className="h-px bg-q-border mb-5" />}
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-[#7E8395] text-base font-medium flex-1">{item.name}</p>
+                        <p className="text-q-muted text-base font-medium flex-1">{item.name}</p>
                         <div className="flex flex-col items-end gap-2 shrink-0">
-                          <p className="text-[#1F2128] text-base font-medium whitespace-nowrap">
+                          <p className="text-q-dark text-base font-medium whitespace-nowrap">
                             {item.price.toLocaleString('ru-RU')} $
                           </p>
                           <StarRating rating={item.rating} />
@@ -88,15 +88,15 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Divider (vertical on desktop) */}
-                <div className="hidden sm:block w-px bg-[#D6D6DB] self-stretch mx-2" />
-                <div className="sm:hidden h-px bg-[#D6D6DB]" />
+                <div className="hidden sm:block w-px bg-q-border self-stretch mx-2" />
+                <div className="sm:hidden h-px bg-q-border" />
 
                 {/* Date & total */}
                 <div className="sm:w-40 flex flex-col justify-between gap-3 shrink-0">
-                  <p className="text-[#7E8395] text-base font-medium">{order.date}</p>
+                  <p className="text-q-muted text-base font-medium">{order.date}</p>
                   <div className="flex items-center justify-between sm:flex-col sm:items-start gap-2">
-                    <p className="text-[#7E8395] text-base font-medium">Сумма</p>
-                    <p className="text-[#1F2128] text-base font-medium text-right">
+                    <p className="text-q-muted text-base font-medium">Сумма</p>
+                    <p className="text-q-dark text-base font-medium text-right">
                       {order.total.toLocaleString('ru-RU')} $
                     </p>
                   </div>
