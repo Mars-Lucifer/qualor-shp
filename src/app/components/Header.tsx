@@ -1,9 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, User } from "lucide-react";
+
+import { useAuth } from "@/app/auth-provider";
 import { InputSearch } from "./Input";
 import { Button } from "./Button";
 
@@ -18,12 +20,25 @@ export function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, ready, logout } = useAuth();
+
+  const resolvedIsLoggedIn = ready ? Boolean(user) : isLoggedIn;
+  const resolvedUserName = user?.name ?? userName;
+  const isAdmin = user?.role === "admin";
 
   const navLinks = [
     { label: "Каталог", href: "/catalog" },
     { label: "Корзина", href: "/basket" },
     { label: "Заказы", href: "/orders" },
+    ...(isAdmin ? [{ label: "Админ", href: "/admin" }] : []),
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    setMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="sticky z-50 isolate top-0 w-full px-4 sm:px-6 xl:px-[60px] py-4 sm:py-5">
@@ -51,12 +66,10 @@ export function Header({
           </span>
         </Link>
 
-        {/* Search – hidden on mobile */}
         <div className="hidden sm:flex flex-1 min-w-0">
           <InputSearch placeholder="Поиск" tone="white" />
         </div>
 
-        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6 xl:gap-10 shrink-0">
           {navLinks.map((link) => (
             <Link
@@ -73,13 +86,18 @@ export function Header({
             </Link>
           ))}
 
-          {isLoggedIn ? (
-            <Link href="/orders" className="no-underline">
-              <button className="bg-q-dark text-white rounded-q-pill px-[18px] py-3 text-base font-medium flex items-center gap-2.5 hover:bg-q-dark-soft transition-colors duration-150 whitespace-nowrap cursor-pointer">
-                {userName}
-                <User size={18} />
-              </button>
-            </Link>
+          {resolvedIsLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <Link href="/orders" className="no-underline">
+                <button className="bg-q-dark text-white rounded-q-pill px-[18px] py-3 text-base font-medium flex items-center gap-2.5 hover:bg-q-dark-soft transition-colors duration-150 whitespace-nowrap cursor-pointer">
+                  {resolvedUserName}
+                  <User size={18} />
+                </button>
+              </Link>
+              <Button variant="outlineMuted" size="md" onClick={handleLogout}>
+                Выйти
+              </Button>
+            </div>
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/auth">
@@ -96,7 +114,6 @@ export function Header({
           )}
         </nav>
 
-        {/* Mobile menu button */}
         <button
           className="md:hidden ml-auto text-q-dark p-1 transition-transform duration-150 active:scale-95"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -106,12 +123,10 @@ export function Header({
         </button>
       </div>
 
-      {/* Mobile search */}
       <div className="sm:hidden mt-2 px-0">
         <InputSearch placeholder="Поиск" tone="white" border="strong" />
       </div>
 
-      {/* Mobile nav dropdown */}
       <div
         className={[
           "md:hidden overflow-hidden transition-all duration-300 ease-in-out max-w-[1320px] mx-auto",
@@ -135,12 +150,17 @@ export function Header({
             </Link>
           ))}
           <div className="flex flex-col gap-2 pt-2 border-t border-q-border">
-            {isLoggedIn ? (
-              <Link href="/orders" onClick={() => setMenuOpen(false)}>
-                <Button variant="dark" fullWidth>
-                  {userName} <User size={18} />
+            {resolvedIsLoggedIn ? (
+              <>
+                <Link href="/orders" onClick={() => setMenuOpen(false)}>
+                  <Button variant="dark" fullWidth>
+                    {resolvedUserName} <User size={18} />
+                  </Button>
+                </Link>
+                <Button variant="outlineMuted" fullWidth onClick={handleLogout}>
+                  Выйти
                 </Button>
-              </Link>
+              </>
             ) : (
               <>
                 <Link href="/auth" onClick={() => setMenuOpen(false)}>
