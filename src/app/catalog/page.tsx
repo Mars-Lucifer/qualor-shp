@@ -81,7 +81,13 @@ function sanitizeDigits(value: string): string {
   return value.replace(/[^\d.]/g, "");
 }
 
-function FilterSection({ title, children }: { title: string; children: ReactNode }) {
+function FilterSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <section className="flex flex-col gap-3">
       <h3 className="text-q-dark text-sm font-semibold">{title}</h3>
@@ -106,7 +112,10 @@ function RadioGroup({
       {options.map((option) => {
         const checked = value === option;
         return (
-          <label key={option} className="inline-flex items-center gap-2 cursor-pointer group">
+          <label
+            key={option}
+            className="inline-flex items-center gap-2 cursor-pointer group"
+          >
             <input
               type="radio"
               name={name}
@@ -118,10 +127,14 @@ function RadioGroup({
             <span
               className={[
                 "size-[18px] rounded-full bg-q-surface border flex items-center justify-center transition-all",
-                checked ? "border-q-dark" : "border-q-border group-hover:border-q-muted",
+                checked
+                  ? "border-q-dark"
+                  : "border-q-border group-hover:border-q-muted",
               ].join(" ")}
             >
-              {checked && <span className="size-[8px] rounded-full bg-q-dark" />}
+              {checked && (
+                <span className="size-[8px] rounded-full bg-q-dark" />
+              )}
             </span>
             <span
               className={[
@@ -152,8 +165,16 @@ function CheckboxGroup({
       {options.map((option) => {
         const checked = values.includes(option);
         return (
-          <label key={option} className="inline-flex items-center gap-2 cursor-pointer group">
-            <input type="checkbox" checked={checked} onChange={() => onToggle(option)} className="sr-only" />
+          <label
+            key={option}
+            className="inline-flex items-center gap-2 cursor-pointer group"
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => onToggle(option)}
+              className="sr-only"
+            />
             <span
               className={[
                 "size-[18px] rounded-[6px] border flex items-center justify-center transition-all",
@@ -162,17 +183,7 @@ function CheckboxGroup({
                   : "bg-q-surface border-q-border group-hover:border-q-muted",
               ].join(" ")}
             >
-              {checked && (
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path
-                    d="M1 4L3.5 6.5L9 1"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              )}
+              {checked && <img src="/assets/icons/check.svg" alt="chech" />}
             </span>
             <span
               className={[
@@ -259,7 +270,8 @@ export default function CatalogPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
-  const [draftFilters, setDraftFilters] = useState<FilterState>(INITIAL_FILTERS);
+  const [draftFilters, setDraftFilters] =
+    useState<FilterState>(INITIAL_FILTERS);
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
   const [total, setTotal] = useState(0);
@@ -322,7 +334,9 @@ export default function CatalogPage() {
 
     setIsLoading(true);
 
-    apiRequest<{ total: number; items: ProductListItem[] }>(`/api/products?${params.toString()}`)
+    apiRequest<{ total: number; items: ProductListItem[] }>(
+      `/api/products?${params.toString()}`,
+    )
       .then((response) => {
         if (!cancelled) {
           setProducts(response.items);
@@ -348,7 +362,10 @@ export default function CatalogPage() {
     };
   }, [filters, search]);
 
-  const updateInstantFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+  const updateInstantFilter = <K extends keyof FilterState>(
+    key: K,
+    value: FilterState[K],
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
     setDraftFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -394,7 +411,10 @@ export default function CatalogPage() {
       });
       window.alert("Товар добавлен в корзину");
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : "Не удалось добавить товар";
+      const message =
+        requestError instanceof Error
+          ? requestError.message
+          : "Не удалось добавить товар";
       window.alert(message);
     }
   };
@@ -419,7 +439,9 @@ export default function CatalogPage() {
           name="category-filter"
           options={CATEGORIES}
           value={filters.category}
-          onChange={(value) => updateInstantFilter("category", value as CategoryKey)}
+          onChange={(value) =>
+            updateInstantFilter("category", value as CategoryKey)
+          }
         />
       </FilterSection>
 
@@ -451,7 +473,11 @@ export default function CatalogPage() {
       </FilterSection>
 
       <FilterSection title="Бренд">
-        <CheckboxGroup options={brands} values={filters.brands} onToggle={toggleBrand} />
+        <CheckboxGroup
+          options={brands}
+          values={filters.brands}
+          onToggle={toggleBrand}
+        />
       </FilterSection>
 
       <FilterSection title="Диагональ экрана">
@@ -472,7 +498,9 @@ export default function CatalogPage() {
           name="processor-filter"
           options={["Любой", ...PROCESSOR_OPTIONS]}
           value={filters.processor || "Любой"}
-          onChange={(value) => updateInstantFilter("processor", value === "Любой" ? "" : value)}
+          onChange={(value) =>
+            updateInstantFilter("processor", value === "Любой" ? "" : value)
+          }
         />
       </FilterSection>
 
@@ -507,7 +535,12 @@ export default function CatalogPage() {
           name="gpu-filter"
           options={["Любая", ...GPU_TYPES]}
           value={filters.gpu || "Любая"}
-          onChange={(value) => updateInstantFilter("gpu", (value === "Любая" ? "" : value) as FilterState["gpu"])}
+          onChange={(value) =>
+            updateInstantFilter(
+              "gpu",
+              (value === "Любая" ? "" : value) as FilterState["gpu"],
+            )
+          }
         />
       </FilterSection>
     </div>
@@ -522,7 +555,9 @@ export default function CatalogPage() {
           <Button
             variant={filtersOpen ? "dark" : "outlineMuted"}
             size="md"
-            icon={filtersOpen ? <X size={18} /> : <SlidersHorizontal size={18} />}
+            icon={
+              filtersOpen ? <X size={18} /> : <SlidersHorizontal size={18} />
+            }
             iconPosition="right"
             onClick={() => setFiltersOpen((prev) => !prev)}
           >
@@ -534,7 +569,9 @@ export default function CatalogPage() {
         </div>
 
         <div className="flex gap-8 xl:gap-10 items-start">
-          <aside className="shrink-0 w-[220px] xl:w-[240px] hidden lg:block">{renderFilterPanel()}</aside>
+          <aside className="shrink-0 w-[220px] xl:w-[240px] hidden lg:block">
+            {renderFilterPanel()}
+          </aside>
 
           {filtersOpen && (
             <div className="lg:hidden fixed inset-0 z-40 flex">
@@ -547,7 +584,11 @@ export default function CatalogPage() {
               <div className="w-72 bg-white h-full overflow-y-auto p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-medium text-q-dark">Фильтры</h2>
-                  <button type="button" onClick={() => setFiltersOpen(false)} aria-label="Закрыть">
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(false)}
+                    aria-label="Закрыть"
+                  >
                     <X size={20} className="text-q-muted" />
                   </button>
                 </div>
@@ -578,7 +619,9 @@ export default function CatalogPage() {
             {error ? (
               <div className="py-20 text-center text-q-muted">{error}</div>
             ) : isLoading ? (
-              <div className="py-20 text-center text-q-muted">Загрузка товаров...</div>
+              <div className="py-20 text-center text-q-muted">
+                Загрузка товаров...
+              </div>
             ) : products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
                 {products.map((product) => (
@@ -588,7 +631,6 @@ export default function CatalogPage() {
                     name={product.name}
                     price={product.price}
                     image={product.image ?? undefined}
-                    onAddToCart={() => handleAddToCart(product.id)}
                   />
                 ))}
               </div>

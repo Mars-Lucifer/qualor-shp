@@ -173,6 +173,8 @@ function createTables() {
 
     CREATE UNIQUE INDEX IF NOT EXISTS cart_items_user_product_unique
       ON cart_items(user_id, product_id);
+    CREATE UNIQUE INDEX IF NOT EXISTS reviews_user_product_unique
+      ON reviews(user_id, product_id);
     CREATE UNIQUE INDEX IF NOT EXISTS popular_products_cache_category_position_unique
       ON popular_products_cache(popular_category, position);
     CREATE INDEX IF NOT EXISTS sessions_user_index ON sessions(user_id);

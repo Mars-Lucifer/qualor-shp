@@ -6,17 +6,25 @@ import { useRouter } from 'next/navigation';
 import { ShoppingCart, X } from 'lucide-react';
 
 import { useAuth } from '@/app/auth-provider';
+import { useCart } from '@/app/cart-provider';
 import { Button } from '@/app/components/Button';
+import { CartQuantityControl } from '@/app/components/CartQuantityControl';
 import { Footer } from '@/app/components/Footer';
 import { Header } from '@/app/components/Header';
 import { InputWhite } from '@/app/components/Input';
-import { apiRequest, type CartResponse } from '@/app/lib/api';
+import { apiRequest } from '@/app/lib/api';
 
 export default function BasketPage() {
   const router = useRouter();
   const { user, ready } = useAuth();
-  const [cart, setCart] = useState<CartResponse>({ totalPrice: 0, items: [] });
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    cart,
+    ready: cartReady,
+    removeProduct,
+    incrementProduct,
+    decrementProduct,
+    clearCartState,
+  } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -33,44 +41,8 @@ export default function BasketPage() {
 
     if (!user) {
       router.replace('/auth');
-      return;
     }
-
-    let cancelled = false;
-
-    apiRequest<CartResponse>('/api/cart')
-      .then((response) => {
-        if (!cancelled) {
-          setCart(response);
-          setError('');
-        }
-      })
-      .catch((requestError: Error) => {
-        if (!cancelled) {
-          setError(requestError.message);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
   }, [ready, router, user]);
-
-  const removeItem = async (productId: number) => {
-    try {
-      const response = await apiRequest<CartResponse>(`/api/cart/items/${productId}`, {
-        method: 'DELETE',
-      });
-      setCart(response);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Не удалось удалить товар');
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -82,6 +54,7 @@ export default function BasketPage() {
         method: 'POST',
         body: JSON.stringify(form),
       });
+      clearCartState();
       router.push(`/basket/success?orderId=${response.order.id}`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Не удалось оформить заказ');
@@ -89,6 +62,30 @@ export default function BasketPage() {
       setIsSubmitting(false);
     }
   };
+
+  const handleRemove = async (productId: number) => {
+    try {
+      setError('');
+      await removeProduct(productId);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Не удалось удалить товар');
+    }
+  };
+
+  const handleQuantity = async (productId: number, action: 'increment' | 'decrement') => {
+    try {
+      setError('');
+      if (action === 'increment') {
+        await incrementProduct(productId);
+      } else {
+        await decrementProduct(productId);
+      }
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Не удалось обновить корзину');
+    }
+  };
+
+  const isLoading = !ready || !cartReady;
 
   return (
     <div className="min-h-screen bg-white font-[Inter,sans-serif]">
@@ -133,7 +130,21 @@ export default function BasketPage() {
                       <p className="text-q-dark text-xl sm:text-2xl font-medium leading-[1.08] flex-1">
                         {item.name}
                       </p>
-                      <p className="text-q-muted text-sm font-medium">Количество: {item.quantity}</p>
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <CartQuantityControl
+                          quantity={item.quantity}
+                          onAdd={() => undefined}
+                          onIncrement={() => handleQuantity(item.productId, 'increment')}
+                          onDecrement={() => handleQuantity(item.productId, 'decrement')}
+                        />
+                        <button
+                          onClick={() => handleRemove(item.productId)}
+                          className="size-10 rounded-full bg-q-danger flex items-center justify-center text-white hover:bg-q-danger-soft transition-all duration-150 active:scale-90 shrink-0"
+                          aria-label="Удалить из корзины"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
                       <div className="flex items-end justify-between">
                         <div className="flex items-end gap-1 font-medium leading-[1.08] whitespace-nowrap">
                           <span className="text-q-dark text-2xl">
@@ -141,13 +152,6 @@ export default function BasketPage() {
                           </span>
                           <span className="text-q-muted text-[18px]">$</span>
                         </div>
-                        <button
-                          onClick={() => removeItem(item.productId)}
-                          className="size-10 rounded-full bg-q-danger flex items-center justify-center text-white hover:bg-q-danger-soft transition-all duration-150 active:scale-90 shrink-0"
-                          aria-label="Удалить из корзины"
-                        >
-                          <X size={18} />
-                        </button>
                       </div>
                     </div>
                   </div>

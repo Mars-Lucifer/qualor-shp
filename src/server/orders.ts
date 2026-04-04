@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
 
 import {
   brands,
@@ -8,6 +8,7 @@ import {
   orders,
   productImages,
   products,
+  reviews,
   users,
 } from '@/server/db';
 import { invalidatePopularProductsCache } from '@/server/catalog';
@@ -39,7 +40,7 @@ function validateCheckoutPayload(payload: CheckoutPayload) {
   };
 }
 
-function mapOrderItems(orderIds: number[]) {
+function mapOrderItems(orderIds: number[], userId?: number) {
   if (orderIds.length === 0) {
     return new Map<number, Array<Record<string, unknown>>>();
   }
@@ -68,6 +69,29 @@ function mapOrderItems(orderIds: number[]) {
     .orderBy(asc(orderItems.id))
     .all();
 
+  const productIds = Array.from(
+    new Set(
+      rows
+        .map((row) => row.productId)
+        .filter((productId): productId is number => typeof productId === 'number'),
+    ),
+  );
+
+  const reviewRatings =
+    userId && productIds.length > 0
+      ? new Map(
+          db
+            .select({
+              productId: reviews.productId,
+              rating: reviews.rating,
+            })
+            .from(reviews)
+            .where(and(eq(reviews.userId, userId), inArray(reviews.productId, productIds)))
+            .all()
+            .map((review) => [review.productId, review.rating]),
+        )
+      : new Map<number, number>();
+
   const itemsByOrderId = new Map<number, Array<Record<string, unknown>>>();
 
   for (const row of rows) {
@@ -88,6 +112,7 @@ function mapOrderItems(orderIds: number[]) {
       graphicsModel: row.graphicsModel,
       imageUrl: row.imageUrl,
       createdAt: row.createdAt,
+      userRating: row.productId ? reviewRatings.get(row.productId) ?? null : null,
     });
     itemsByOrderId.set(row.orderId, bucket);
   }
@@ -209,6 +234,105 @@ export function removeProductFromCart(userId: number, productId: number) {
   return getCart(userId);
 }
 
+export function updateProductQuantityInCart(userId: number, productId: number, action: 'increment' | 'decrement') {
+  const existingCartItem = db
+    .select({
+      id: cartItems.id,
+      quantity: cartItems.quantity,
+    })
+    .from(cartItems)
+    .where(sql`${cartItems.userId} = ${userId} and ${cartItems.productId} = ${productId}`)
+    .get();
+
+  if (!existingCartItem) {
+    throw new HttpError(404, 'РўРѕРІР°СЂ РЅРµ РЅР°Р№РґРµРЅ РІ РєРѕСЂР·РёРЅРµ');
+  }
+
+  if (action === 'increment') {
+    db
+      .update(cartItems)
+      .set({
+        quantity: existingCartItem.quantity + 1,
+        updatedAt: Date.now(),
+      })
+      .where(eq(cartItems.id, existingCartItem.id))
+      .run();
+  } else if (existingCartItem.quantity <= 1) {
+    db.delete(cartItems).where(eq(cartItems.id, existingCartItem.id)).run();
+  } else {
+    db
+      .update(cartItems)
+      .set({
+        quantity: existingCartItem.quantity - 1,
+        updatedAt: Date.now(),
+      })
+      .where(eq(cartItems.id, existingCartItem.id))
+      .run();
+  }
+
+  return getCart(userId);
+}
+
+export function saveOrderItemReview(userId: number, orderId: number, productId: number, rating: number) {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    throw new HttpError(400, 'Оценка должна быть целым числом от 1 до 5');
+  }
+
+  const existingOrder = db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(sql`${orders.id} = ${orderId} and ${orders.userId} = ${userId}`)
+    .get();
+
+  if (!existingOrder) {
+    throw new HttpError(404, 'Заказ не найден');
+  }
+
+  const existingOrderItem = db
+    .select({
+      productId: orderItems.productId,
+    })
+    .from(orderItems)
+    .where(sql`${orderItems.orderId} = ${orderId} and ${orderItems.productId} = ${productId}`)
+    .get();
+
+  if (!existingOrderItem?.productId) {
+    throw new HttpError(404, 'Товар не найден в заказе');
+  }
+
+  const existingReview = db
+    .select({
+      id: reviews.id,
+    })
+    .from(reviews)
+    .where(sql`${reviews.userId} = ${userId} and ${reviews.productId} = ${productId}`)
+    .get();
+
+  if (existingReview) {
+    db
+      .update(reviews)
+      .set({ rating })
+      .where(eq(reviews.id, existingReview.id))
+      .run();
+  } else {
+    db
+      .insert(reviews)
+      .values({
+        productId,
+        userId,
+        rating,
+        comment: null,
+        createdAt: Date.now(),
+      })
+      .run();
+  }
+
+  return {
+    productId,
+    rating,
+  };
+}
+
 export function checkout(userId: number, payload: CheckoutPayload) {
   const payment = validateCheckoutPayload(payload);
   const imageExpression = productImageExpression();
@@ -311,7 +435,7 @@ export function listUserOrders(userId: number) {
     .orderBy(desc(orders.createdAt), desc(orders.id))
     .all();
 
-  const itemsByOrderId = mapOrderItems(orderRows.map((orderRow) => orderRow.id));
+  const itemsByOrderId = mapOrderItems(orderRows.map((orderRow) => orderRow.id), userId);
 
   return orderRows.map((orderRow) => formatOrderRecord(orderRow, itemsByOrderId));
 }
@@ -337,7 +461,7 @@ export function getUserOrder(userId: number, orderId: number) {
     throw new HttpError(404, 'Заказ не найден');
   }
 
-  const itemsByOrderId = mapOrderItems([orderId]);
+  const itemsByOrderId = mapOrderItems([orderId], userId);
 
   return formatOrderRecord(orderRow, itemsByOrderId);
 }

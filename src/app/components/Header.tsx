@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, User } from "lucide-react";
+import { Menu, User, X } from "lucide-react";
 
 import { useAuth } from "@/app/auth-provider";
-import { InputSearch } from "./Input";
+import { useCart } from "@/app/cart-provider";
 import { Button } from "./Button";
+import { InputSearch } from "./Input";
 
 interface HeaderProps {
   isLoggedIn?: boolean;
@@ -22,6 +23,7 @@ export function Header({
   const pathname = usePathname();
   const router = useRouter();
   const { user, ready, logout } = useAuth();
+  const { itemCount, clearCartState } = useCart();
 
   const resolvedIsLoggedIn = ready ? Boolean(user) : isLoggedIn;
   const resolvedUserName = user?.name ?? userName;
@@ -36,8 +38,45 @@ export function Header({
 
   const handleLogout = async () => {
     await logout();
+    clearCartState();
     setMenuOpen(false);
     router.push("/");
+  };
+
+  const renderNavLink = (
+    link: { label: string; href: string },
+    mobile = false,
+  ) => {
+    const isBasket = link.href === "/basket";
+    const showBadge = isBasket && itemCount > 0;
+
+    return (
+      <Link
+        key={link.href}
+        href={link.href}
+        onClick={() => {
+          if (mobile) {
+            setMenuOpen(false);
+          }
+        }}
+        className={[
+          mobile
+            ? "text-base font-medium py-2 no-underline transition-colors duration-150"
+            : "text-base font-medium leading-normal transition-colors duration-150 no-underline whitespace-nowrap",
+          pathname === link.href
+            ? "text-q-dark"
+            : "text-q-muted hover:text-q-dark",
+          isBasket ? "inline-flex items-center gap-2" : "",
+        ].join(" ")}
+      >
+        <span>{link.label}</span>
+        {showBadge ? (
+          <span className="min-w-5 h-5 px-1 rounded-full bg-q-danger text-white text-xs font-medium inline-flex items-center justify-center">
+            {itemCount}
+          </span>
+        ) : null}
+      </Link>
+    );
   };
 
   return (
@@ -49,20 +88,14 @@ export function Header({
           className="flex items-center gap-3.5 shrink-0 group no-underline"
         >
           <div className="size-8 shrink-0">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <clipPath id="logo-clip">
-                <rect width="32" height="32" fill="white" />
-              </clipPath>
-              <g clipPath="url(#logo-clip)">
-                <path d="M16 0H32V16L16 0Z" fill="#1F2128" />
-                <path d="M32 32H16V16L32 32Z" fill="#1F2128" />
-                <path d="M0 16H16V32L0 16Z" fill="#1F2128" />
-                <rect width="16" height="16" fill="#1F2128" />
-              </g>
-            </svg>
+            <img
+              src="/assets/icons/logo.svg"
+              alt="logo"
+              className="w-full h-full"
+            />
           </div>
           <span className="text-q-dark font-medium text-2xl leading-normal whitespace-nowrap transition-opacity group-hover:opacity-75">
-            Qualor shp
+            TechMarket
           </span>
         </Link>
 
@@ -71,20 +104,7 @@ export function Header({
         </div>
 
         <nav className="hidden md:flex items-center gap-6 xl:gap-10 shrink-0">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={[
-                "text-base font-medium leading-normal transition-colors duration-150 no-underline whitespace-nowrap",
-                pathname === link.href
-                  ? "text-q-dark"
-                  : "text-q-muted hover:text-q-dark",
-              ].join(" ")}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => renderNavLink(link))}
 
           {resolvedIsLoggedIn ? (
             <div className="flex items-center gap-2">
@@ -134,21 +154,7 @@ export function Header({
         ].join(" ")}
       >
         <div className="bg-q-surface rounded-q-input p-4 flex flex-col gap-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className={[
-                "text-base font-medium py-2 no-underline transition-colors duration-150",
-                pathname === link.href
-                  ? "text-q-dark"
-                  : "text-q-muted hover:text-q-dark",
-              ].join(" ")}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => renderNavLink(link, true))}
           <div className="flex flex-col gap-2 pt-2 border-t border-q-border">
             {resolvedIsLoggedIn ? (
               <>

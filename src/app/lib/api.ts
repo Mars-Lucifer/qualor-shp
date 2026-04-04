@@ -86,6 +86,7 @@ export interface OrderItem {
   graphicsModel: string | null;
   imageUrl: string | null;
   createdAt: number;
+  userRating: number | null;
 }
 
 export interface OrderRecord {
@@ -148,6 +149,16 @@ export function formatDate(timestamp: number) {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+  }).format(timestamp);
+}
+
+export function formatDateTime(timestamp: number) {
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(timestamp);
 }
 

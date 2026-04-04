@@ -131,6 +131,7 @@ export const reviews = sqliteTable(
   (table) => ({
     productIndex: index('reviews_product_index').on(table.productId),
     userIndex: index('reviews_user_index').on(table.userId),
+    uniqueUserProduct: uniqueIndex('reviews_user_product_unique').on(table.userId, table.productId),
   }),
 );
 

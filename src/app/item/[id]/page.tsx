@@ -2,36 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, ShoppingCart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { useAuth } from '@/app/auth-provider';
-import { Button } from '@/app/components/Button';
+import { useCart } from '@/app/cart-provider';
+import { CartQuantityControl } from '@/app/components/CartQuantityControl';
 import { Footer } from '@/app/components/Footer';
 import { Header } from '@/app/components/Header';
+import { StarRating } from '@/app/components/StarRating';
 import { apiRequest, processorToLabel, type ProductDetail } from '@/app/lib/api';
-
-function StarRating({ rating, max = 5 }: { rating: number; max?: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: max }).map((_, index) => (
-        <Star
-          key={index}
-          size={18}
-          fill={index < rating ? 'var(--q-star)' : 'var(--q-muted)'}
-          stroke="none"
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function ItemPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const { getProductQuantity, addProduct, incrementProduct, decrementProduct } = useCart();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [currentImage, setCurrentImage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCartUpdating, setIsCartUpdating] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -64,7 +53,7 @@ export default function ItemPage() {
     };
   }, [params.id]);
 
-  const handleAddToCart = async () => {
+  const handleCartAction = async (action: 'add' | 'increment' | 'decrement') => {
     if (!product) {
       return;
     }
@@ -74,19 +63,27 @@ export default function ItemPage() {
       return;
     }
 
+    setIsCartUpdating(true);
+
     try {
-      await apiRequest('/api/cart/items', {
-        method: 'POST',
-        body: JSON.stringify({ productId: product.id }),
-      });
-      window.alert('Товар добавлен в корзину');
+      if (action === 'add') {
+        await addProduct(product.id);
+      } else if (action === 'increment') {
+        await incrementProduct(product.id);
+      } else {
+        await decrementProduct(product.id);
+      }
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : 'Не удалось добавить товар';
+      const message =
+        requestError instanceof Error ? requestError.message : 'Не удалось обновить корзину';
       window.alert(message);
+    } finally {
+      setIsCartUpdating(false);
     }
   };
 
   const images = product?.images.length ? product.images : product?.image ? [product.image] : [];
+  const quantity = product ? getProductQuantity(product.id) : 0;
 
   return (
     <div className="min-h-screen bg-white font-[Inter,sans-serif]">
@@ -186,15 +183,14 @@ export default function ItemPage() {
                   <span className="text-q-dark text-[40px]">{product.price.toLocaleString('ru-RU')}</span>
                   <span className="text-q-muted text-2xl">$</span>
                 </div>
-                <Button
-                  variant="accent"
-                  size="md"
-                  className="flex-1 sm:flex-none sm:w-[315px] justify-center transition-all duration-300"
-                  icon={<ShoppingCart size={18} />}
-                  onClick={handleAddToCart}
-                >
-                  В корзину
-                </Button>
+                <CartQuantityControl
+                  quantity={quantity}
+                  disabled={isCartUpdating}
+                  className="flex-1 sm:flex-none sm:w-[315px] justify-between"
+                  onAdd={() => handleCartAction('add')}
+                  onIncrement={() => handleCartAction('increment')}
+                  onDecrement={() => handleCartAction('decrement')}
+                />
               </div>
             </div>
           </div>

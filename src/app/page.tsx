@@ -201,7 +201,6 @@ export default function HomePage() {
                   name={product.name}
                   price={product.price}
                   image={product.image ?? product.images[0]}
-                  onAddToCart={() => handleAddToCart(product.id)}
                 />
               ))}
             </div>

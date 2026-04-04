@@ -15,6 +15,7 @@ const navItems = [
   { label: 'Удаление товара', href: '/admin/remove' },
   { label: 'Изменение товара', href: '/admin/edit' },
   { label: 'Заказы', href: '/admin/orders' },
+  { label: 'Новости', href: '/admin/news' },
 ];
 
 export function AdminNav({ layout = 'wrap', className = '' }: AdminNavProps) {

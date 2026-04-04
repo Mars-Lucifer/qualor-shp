@@ -396,6 +396,8 @@ function orderProductQuery(
 }
 
 export function listNews() {
+  cleanupExpiredNews();
+
   return db
     .select({
       id: news.id,
@@ -407,6 +409,91 @@ export function listNews() {
     .from(news)
     .orderBy(desc(news.createdAt))
     .all();
+}
+
+export function createNews(input: unknown) {
+  const payload = parseNewsPayload(input);
+  const now = Date.now();
+
+  const insertResult = db
+    .insert(news)
+    .values({
+      title: payload.title,
+      description: payload.description,
+      activeUntil: payload.activeUntil,
+      createdAt: now,
+    })
+    .run();
+
+  return db
+    .select({
+      id: news.id,
+      title: news.title,
+      description: news.description,
+      activeUntil: news.activeUntil,
+      createdAt: news.createdAt,
+    })
+    .from(news)
+    .where(eq(news.id, Number(insertResult.lastInsertRowid)))
+    .get();
+}
+
+export function deleteNews(newsId: number) {
+  cleanupExpiredNews();
+
+  const existingNews = db
+    .select({ id: news.id })
+    .from(news)
+    .where(eq(news.id, newsId))
+    .get();
+
+  if (!existingNews) {
+    throw new HttpError(404, 'Новость не найдена');
+  }
+
+  db.delete(news).where(eq(news.id, newsId)).run();
+}
+
+function cleanupExpiredNews() {
+  db.delete(news).where(sql`${news.activeUntil} is not null and ${news.activeUntil} <= ${Date.now()}`).run();
+}
+
+function parseNewsPayload(input: unknown) {
+  if (!input || typeof input !== 'object') {
+    throw new HttpError(400, 'Некорректные данные новости');
+  }
+
+  const payload = input as Record<string, unknown>;
+  const title = requireNonEmptyString(payload.title, 'Название новости');
+  const description = requireNonEmptyString(payload.description, 'Описание новости');
+  const activeUntilRaw = payload.activeUntil;
+
+  let activeUntil: number | null = null;
+
+  if (activeUntilRaw !== undefined && activeUntilRaw !== null && activeUntilRaw !== '') {
+    const parsedDate =
+      typeof activeUntilRaw === 'number'
+        ? activeUntilRaw
+        : typeof activeUntilRaw === 'string'
+          ? Date.parse(activeUntilRaw)
+          : Number.NaN;
+
+    if (!Number.isFinite(parsedDate)) {
+      throw new HttpError(400, 'Дата окончания новости указана некорректно');
+    }
+
+    if (parsedDate <= Date.now()) {
+      throw new HttpError(400, 'Дата окончания новости должна быть позже текущего времени');
+    }
+
+    activeUntil = parsedDate;
+  }
+
+  return {
+    title,
+    description,
+    activeUntil,
+  };
 }
 
 export function listBrands() {

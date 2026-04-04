@@ -1,12 +1,90 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/app/auth-provider';
 import { Footer } from '@/app/components/Footer';
 import { Header } from '@/app/components/Header';
 import { apiRequest, formatDate, type OrderRecord } from '@/app/lib/api';
+
+function OrderItemRating({
+  orderId,
+  productId,
+  initialRating,
+  onSaved,
+}: {
+  orderId: number;
+  productId: number | null;
+  initialRating: number | null;
+  onSaved: (rating: number) => void;
+}) {
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+
+  if (!productId) {
+    return null;
+  }
+
+  if (initialRating) {
+    return (
+      <div className="inline-flex items-center gap-2 text-sm font-medium text-q-dark">
+        <Star size={16} fill="var(--q-star)" stroke="none" />
+        <span>{initialRating}/5</span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="inline-flex items-center gap-1"
+      onMouseLeave={() => setHoveredRating(0)}
+    >
+      {Array.from({ length: 5 }).map((_, index) => {
+        const ratingValue = index + 1;
+        const isActive = ratingValue <= hoveredRating;
+
+        return (
+          <button
+            key={ratingValue}
+            type="button"
+            disabled={isSaving}
+            className="transition-transform duration-150 hover:scale-110 disabled:cursor-wait"
+            onMouseEnter={() => setHoveredRating(ratingValue)}
+            onClick={async () => {
+              setIsSaving(true);
+
+              try {
+                const response = await apiRequest<{ review: { rating: number } }>(
+                  `/api/orders/${orderId}/reviews`,
+                  {
+                    method: 'POST',
+                    body: JSON.stringify({ productId, rating: ratingValue }),
+                  },
+                );
+                onSaved(response.review.rating);
+              } catch (requestError) {
+                const message =
+                  requestError instanceof Error ? requestError.message : 'Не удалось сохранить оценку';
+                window.alert(message);
+              } finally {
+                setIsSaving(false);
+              }
+            }}
+            aria-label={`Оценить товар на ${ratingValue} из 5`}
+          >
+            <Star
+              size={18}
+              fill={isActive ? 'var(--q-star)' : 'var(--q-surface)'}
+              color={isActive ? 'var(--q-star)' : 'var(--q-muted)'}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -50,6 +128,21 @@ export default function OrdersPage() {
     };
   }, [ready, router, user]);
 
+  const updateRating = (orderId: number, itemId: number, rating: number) => {
+    setOrders((current) =>
+      current.map((order) =>
+        order.id !== orderId
+          ? order
+          : {
+              ...order,
+              items: order.items.map((item) =>
+                item.id === itemId ? { ...item, userRating: rating } : item,
+              ),
+            },
+      ),
+    );
+  };
+
   return (
     <div className="min-h-screen bg-white font-[Inter,sans-serif]">
       <Header />
@@ -81,6 +174,23 @@ export default function OrdersPage() {
                           <div className="flex-1">
                             <p className="text-q-muted text-base font-medium">{item.name}</p>
                             <p className="text-q-muted text-sm">Количество: {item.quantity}</p>
+                            <div className="mt-2 flex items-center gap-3">
+                              {item.userRating ? (
+                                <>
+                                  <Star size={16} fill="var(--q-star)" color="var(--q-star)" />
+                                  <span className="text-q-dark text-sm font-medium">
+                                    {item.userRating}/5
+                                  </span>
+                                </>
+                              ) : (
+                                <OrderItemRating
+                                  orderId={order.id}
+                                  productId={item.productId}
+                                  initialRating={item.userRating}
+                                  onSaved={(rating) => updateRating(order.id, item.id, rating)}
+                                />
+                              )}
+                            </div>
                           </div>
                           <div className="flex flex-col items-end gap-2 shrink-0">
                             <p className="text-q-dark text-base font-medium whitespace-nowrap">
