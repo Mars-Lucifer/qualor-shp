@@ -18,7 +18,7 @@ import {
   type ProductListItem,
 } from "@/app/lib/api";
 
-const CATEGORIES = ["Все", "Ноутбуки", "Мини ПК", "Периферия"] as const;
+const CATEGORIES = ["Все", "Ноутбуки", "Мини ПК"] as const;
 const SORT_OPTIONS = [
   { value: "popular", label: "По популярности" },
   { value: "rating", label: "По рейтингу" },
@@ -277,6 +277,7 @@ export default function CatalogPage() {
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const supportsScreenFilter = filters.category !== "Мини ПК";
 
   useEffect(() => {
     let cancelled = false;
@@ -311,8 +312,8 @@ export default function CatalogPage() {
 
     if (filters.priceFrom) params.set("priceFrom", filters.priceFrom);
     if (filters.priceTo) params.set("priceTo", filters.priceTo);
-    if (filters.screenFrom) params.set("screenFrom", filters.screenFrom);
-    if (filters.screenTo) params.set("screenTo", filters.screenTo);
+    if (supportsScreenFilter && filters.screenFrom) params.set("screenFrom", filters.screenFrom);
+    if (supportsScreenFilter && filters.screenTo) params.set("screenTo", filters.screenTo);
     if (filters.ramFrom) params.set("ramFrom", filters.ramFrom);
     if (filters.ramTo) params.set("ramTo", filters.ramTo);
     if (filters.storageFrom) params.set("storageFrom", filters.storageFrom);
@@ -360,7 +361,7 @@ export default function CatalogPage() {
     return () => {
       cancelled = true;
     };
-  }, [filters, search]);
+  }, [filters, search, supportsScreenFilter]);
 
   const updateInstantFilter = <K extends keyof FilterState>(
     key: K,
@@ -439,9 +440,21 @@ export default function CatalogPage() {
           name="category-filter"
           options={CATEGORIES}
           value={filters.category}
-          onChange={(value) =>
-            updateInstantFilter("category", value as CategoryKey)
-          }
+          onChange={(value) => {
+            const nextCategory = value as CategoryKey;
+            setFilters((prev) => ({
+              ...prev,
+              category: nextCategory,
+              screenFrom: nextCategory === "Мини ПК" ? "" : prev.screenFrom,
+              screenTo: nextCategory === "Мини ПК" ? "" : prev.screenTo,
+            }));
+            setDraftFilters((prev) => ({
+              ...prev,
+              category: nextCategory,
+              screenFrom: nextCategory === "Мини ПК" ? "" : prev.screenFrom,
+              screenTo: nextCategory === "Мини ПК" ? "" : prev.screenTo,
+            }));
+          }}
         />
       </FilterSection>
 
@@ -480,18 +493,20 @@ export default function CatalogPage() {
         />
       </FilterSection>
 
-      <FilterSection title="Диагональ экрана">
-        <RangeInputs
-          fromPlaceholder='От "'
-          toPlaceholder='До "'
-          fromValue={draftFilters.screenFrom}
-          toValue={draftFilters.screenTo}
-          onFromChange={(value) => updateDraftRange("screenFrom", value)}
-          onToChange={(value) => updateDraftRange("screenTo", value)}
-          onFromCommit={(value) => commitRangeField("screenFrom", value)}
-          onToCommit={(value) => commitRangeField("screenTo", value)}
-        />
-      </FilterSection>
+      {supportsScreenFilter && (
+        <FilterSection title="Диагональ экрана">
+          <RangeInputs
+            fromPlaceholder='От "'
+            toPlaceholder='До "'
+            fromValue={draftFilters.screenFrom}
+            toValue={draftFilters.screenTo}
+            onFromChange={(value) => updateDraftRange("screenFrom", value)}
+            onToChange={(value) => updateDraftRange("screenTo", value)}
+            onFromCommit={(value) => commitRangeField("screenFrom", value)}
+            onToCommit={(value) => commitRangeField("screenTo", value)}
+          />
+        </FilterSection>
+      )}
 
       <FilterSection title="Процессор">
         <RadioGroup

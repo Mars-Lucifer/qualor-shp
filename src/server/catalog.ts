@@ -73,6 +73,10 @@ const GRAPHICS_TYPE_SET = new Set<string>(GRAPHICS_TYPES);
 const CATALOG_SORT_SET = new Set<string>(CATALOG_SORT_VALUES);
 const POPULAR_CATEGORY_SET = new Set<string>(POPULAR_PRODUCT_CATEGORIES);
 
+function categorySupportsScreen(category: ProductCategory) {
+  return category === 'laptop';
+}
+
 function normalizeBrandName(name: string) {
   return name.trim().replace(/\s+/g, ' ');
 }
@@ -247,6 +251,10 @@ function parseProductPayload(input: unknown, isPartial: boolean): PartialProduct
 }
 
 function validateCompleteProduct(payload: ProductPayload) {
+  if (!categorySupportsScreen(payload.category)) {
+    payload.screenInches = null;
+  }
+
   if (payload.graphicsType === 'discrete' && !payload.graphicsModel) {
     throw new HttpError(400, 'Для дискретной видеокарты требуется указать ее название');
   }
@@ -791,13 +799,6 @@ function queryPopularCandidates(popularCategory: PopularProductCategory) {
         sort: 'popular',
         limit: 12,
       }).items;
-    case 'peripheral':
-    default:
-      return listProducts({
-        category: 'peripheral',
-        sort: 'popular',
-        limit: 12,
-      }).items;
   }
 }
 
@@ -890,17 +891,21 @@ export function parseProductFilters(searchParams: URLSearchParams): ProductQuery
   const graphicsType = searchParams.get('graphicsType');
   const search = searchParams.get('search');
   const brandNames = searchParams.getAll('brand');
+  const parsedCategory = category ? ensureCategory(category, 'Категория') : undefined;
+  const allowScreenFilters = !parsedCategory || categorySupportsScreen(parsedCategory);
 
   return {
-    category: category ? ensureCategory(category, 'Категория') : undefined,
+    category: parsedCategory,
     sort: sort ? ensureSort(sort) : 'popular',
     priceFrom: parseOptionalPositiveInteger(searchParams.get('priceFrom'), 'Цена от') ?? undefined,
     priceTo: parseOptionalPositiveInteger(searchParams.get('priceTo'), 'Цена до') ?? undefined,
     brandNames,
-    screenFrom:
-      parseOptionalPositiveNumber(searchParams.get('screenFrom'), 'Диагональ от') ?? undefined,
-    screenTo:
-      parseOptionalPositiveNumber(searchParams.get('screenTo'), 'Диагональ до') ?? undefined,
+    screenFrom: allowScreenFilters
+      ? parseOptionalPositiveNumber(searchParams.get('screenFrom'), 'Диагональ от') ?? undefined
+      : undefined,
+    screenTo: allowScreenFilters
+      ? parseOptionalPositiveNumber(searchParams.get('screenTo'), 'Диагональ до') ?? undefined
+      : undefined,
     processor: processor ? ensureProcessor(processor, 'Процессор') : undefined,
     ramFrom: parseOptionalPositiveInteger(searchParams.get('ramFrom'), 'ОЗУ от') ?? undefined,
     ramTo: parseOptionalPositiveInteger(searchParams.get('ramTo'), 'ОЗУ до') ?? undefined,

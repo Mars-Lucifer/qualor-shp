@@ -9,10 +9,11 @@ export class ApiError extends Error {
 }
 
 export type UserRole = 'user' | 'admin';
-export type ProductCategory = 'laptop' | 'mini_pc' | 'peripheral';
+export type ProductCategory = 'laptop' | 'mini_pc';
+export type OrderItemCategory = ProductCategory | 'peripheral';
 export type ProcessorType = 'intel' | 'amd' | 'arm' | 'apple';
 export type GraphicsType = 'integrated' | 'discrete';
-export type PopularCategory = 'work_laptops' | 'gaming_laptops' | 'mini_pc' | 'peripheral';
+export type PopularCategory = 'work_laptops' | 'gaming_laptops' | 'mini_pc';
 export type OrderStatus = 'pending' | 'shipped';
 
 export interface AuthUser {
@@ -76,7 +77,7 @@ export interface OrderItem {
   quantity: number;
   name: string;
   price: number;
-  category: ProductCategory;
+  category: OrderItemCategory;
   brandName: string;
   screenInches: number | null;
   processor: ProcessorType | null;
@@ -162,15 +163,16 @@ export function formatDateTime(timestamp: number) {
   }).format(timestamp);
 }
 
-export function categoryToLabel(category: ProductCategory) {
+export function categoryToLabel(category: OrderItemCategory) {
   switch (category) {
     case 'laptop':
       return 'Ноутбуки';
     case 'mini_pc':
       return 'Мини ПК';
     case 'peripheral':
-    default:
       return 'Периферия';
+    default:
+      return 'Мини ПК';
   }
 }
 
@@ -180,8 +182,6 @@ export function catalogLabelToCategory(label: string): ProductCategory | undefin
       return 'laptop';
     case 'Мини ПК':
       return 'mini_pc';
-    case 'Периферия':
-      return 'peripheral';
     default:
       return undefined;
   }
@@ -236,7 +236,6 @@ export const POPULAR_TABS: Array<{ key: PopularCategory; label: string }> = [
   { key: 'work_laptops', label: 'Рабочие ноутбуки' },
   { key: 'gaming_laptops', label: 'Игровые ноутбуки' },
   { key: 'mini_pc', label: 'Мини ПК' },
-  { key: 'peripheral', label: 'Периферия' },
 ];
 
 export async function uploadProductImages(files: File[]) {

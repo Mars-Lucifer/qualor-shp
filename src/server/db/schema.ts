@@ -2,6 +2,7 @@ import { index, integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-or
 
 import {
   GRAPHICS_TYPES,
+  ORDER_ITEM_PRODUCT_CATEGORIES,
   ORDER_STATUSES,
   POPULAR_PRODUCT_CATEGORIES,
   PROCESSOR_TYPES,
@@ -189,7 +190,7 @@ export const orderItems = sqliteTable(
     quantity: integer('quantity').notNull().default(1),
     productName: text('product_name').notNull(),
     productPrice: integer('product_price').notNull(),
-    productCategory: text('product_category', { enum: PRODUCT_CATEGORIES }).notNull(),
+    productCategory: text('product_category', { enum: ORDER_ITEM_PRODUCT_CATEGORIES }).notNull(),
     brandName: text('brand_name').notNull(),
     screenInches: real('screen_inches'),
     processor: text('processor', { enum: PROCESSOR_TYPES }),

@@ -145,12 +145,14 @@ export default function ItemPage() {
                   <span className="text-q-muted">Бренд</span>
                   <span className="text-q-dark text-right">{product.brandName}</span>
                 </div>
-                <div className="flex items-center justify-between text-base font-medium">
-                  <span className="text-q-muted">Диагональ экрана</span>
-                  <span className="text-q-dark text-right">
-                    {product.screenInches ? `${product.screenInches}"` : 'Не указана'}
-                  </span>
-                </div>
+                {product.category === 'laptop' && (
+                  <div className="flex items-center justify-between text-base font-medium">
+                    <span className="text-q-muted">Диагональ экрана</span>
+                    <span className="text-q-dark text-right">
+                      {product.screenInches ? `${product.screenInches}"` : 'Не указана'}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-base font-medium">
                   <span className="text-q-muted">Процессор</span>
                   <span className="text-q-dark text-right">

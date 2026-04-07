@@ -22,7 +22,7 @@ import {
   type ProductDetail,
 } from '@/app/lib/api';
 
-const CATEGORIES = ['Ноутбуки', 'Мини ПК', 'Периферия'];
+const CATEGORIES = ['Ноутбуки', 'Мини ПК'];
 const PROCESSORS = ['Intel', 'AMD', 'Arm', 'Apple'];
 const GPU_TYPES = ['Встроенная', 'Дискретная'];
 
@@ -95,6 +95,7 @@ export default function AdminEditPage() {
     gpu: '',
     customGpu: '',
   });
+  const isMiniPc = form.category === 'Мини ПК';
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -183,7 +184,9 @@ export default function AdminEditPage() {
       if (form.price !== originalForm.price) payload.price = Number(form.price);
       if (form.category !== originalForm.category) payload.category = catalogLabelToCategory(form.category);
       if (currentBrandName !== originalBrandName) payload.brandName = currentBrandName;
-      if (form.screen !== originalForm.screen) payload.screenInches = form.screen ? Number(form.screen) : null;
+      if (form.screen !== originalForm.screen || isMiniPc) {
+        payload.screenInches = isMiniPc ? null : form.screen ? Number(form.screen) : null;
+      }
       if (form.ram !== originalForm.ram) payload.ramGb = form.ram ? Number(form.ram) : null;
       if (form.storage !== originalForm.storage) payload.storageGb = form.storage ? Number(form.storage) : null;
       if (form.processor !== originalForm.processor) {
@@ -287,7 +290,13 @@ export default function AdminEditPage() {
                                 key={category}
                                 label={category}
                                 checked={form.category === category}
-                                onChange={() => setForm((current) => ({ ...current, category }))}
+                                onChange={() =>
+                                  setForm((current) => ({
+                                    ...current,
+                                    category,
+                                    screen: category === 'Мини ПК' ? '' : current.screen,
+                                  }))
+                                }
                               />
                             ))}
                           </div>
@@ -334,13 +343,15 @@ export default function AdminEditPage() {
                       <div className="flex flex-col gap-4">
                         <p className="text-q-dark text-base font-medium">Характеристики</p>
                         <div className="flex flex-wrap gap-3">
-                          <InputWhite
-                            type="number"
-                            placeholder="Диагональ экрана"
-                            className="w-36"
-                            value={form.screen}
-                            onChange={(e) => setForm((current) => ({ ...current, screen: e.target.value }))}
-                          />
+                          {!isMiniPc && (
+                            <InputWhite
+                              type="number"
+                              placeholder="Диагональ экрана"
+                              className="w-36"
+                              value={form.screen}
+                              onChange={(e) => setForm((current) => ({ ...current, screen: e.target.value }))}
+                            />
+                          )}
                           <InputWhite
                             type="number"
                             placeholder="ОЗУ (Гб)"

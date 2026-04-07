@@ -17,7 +17,7 @@ import {
   uploadProductImages,
 } from '@/app/lib/api';
 
-const CATEGORIES = ['Ноутбуки', 'Мини ПК', 'Периферия'];
+const CATEGORIES = ['Ноутбуки', 'Мини ПК'];
 const PROCESSORS = ['Intel', 'AMD', 'Arm', 'Apple'];
 const GPU_TYPES = ['Встроенная', 'Дискретная'];
 
@@ -59,6 +59,7 @@ export default function AdminAddPage() {
     gpu: '',
     customGpu: '',
   });
+  const isMiniPc = form.category === 'Мини ПК';
 
   useEffect(() => {
     if (!ready) {
@@ -115,7 +116,7 @@ export default function AdminAddPage() {
           category: catalogLabelToCategory(form.category),
           price: Number(form.price),
           brandName,
-          screenInches: form.screen ? Number(form.screen) : null,
+          screenInches: isMiniPc ? null : form.screen ? Number(form.screen) : null,
           processor: form.processor ? labelToProcessor(form.processor) : null,
           ramGb: form.ram ? Number(form.ram) : null,
           storageGb: form.storage ? Number(form.storage) : null,
@@ -187,7 +188,13 @@ export default function AdminAddPage() {
                             key={category}
                             label={category}
                             checked={form.category === category}
-                            onChange={() => setForm((current) => ({ ...current, category }))}
+                            onChange={() =>
+                              setForm((current) => ({
+                                ...current,
+                                category,
+                                screen: category === 'Мини ПК' ? '' : current.screen,
+                              }))
+                            }
                           />
                         ))}
                       </div>
@@ -236,13 +243,15 @@ export default function AdminAddPage() {
                   <div className="flex flex-col gap-4">
                     <p className="text-q-dark text-base font-medium">Характеристики</p>
                     <div className="flex flex-wrap gap-3">
-                      <InputWhite
-                        type="number"
-                        placeholder="Диагональ экрана"
-                        className="w-36"
-                        value={form.screen}
-                        onChange={(e) => setForm((current) => ({ ...current, screen: e.target.value }))}
-                      />
+                      {!isMiniPc && (
+                        <InputWhite
+                          type="number"
+                          placeholder="Диагональ экрана"
+                          className="w-36"
+                          value={form.screen}
+                          onChange={(e) => setForm((current) => ({ ...current, screen: e.target.value }))}
+                        />
+                      )}
                       <InputWhite
                         type="number"
                         placeholder="ОЗУ (Гб)"

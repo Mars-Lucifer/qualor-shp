@@ -80,7 +80,7 @@ function createTables() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       name_search TEXT NOT NULL,
-      category TEXT NOT NULL CHECK (category IN ('laptop', 'mini_pc', 'peripheral')),
+      category TEXT NOT NULL CHECK (category IN ('laptop', 'mini_pc')),
       price INTEGER NOT NULL,
       brand_id INTEGER NOT NULL,
       screen_inches REAL,
@@ -162,9 +162,7 @@ function createTables() {
 
     CREATE TABLE IF NOT EXISTS popular_products_cache (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      popular_category TEXT NOT NULL CHECK (
-        popular_category IN ('work_laptops', 'gaming_laptops', 'mini_pc', 'peripheral')
-      ),
+      popular_category TEXT NOT NULL CHECK (popular_category IN ('work_laptops', 'gaming_laptops', 'mini_pc')),
       product_id INTEGER NOT NULL,
       position INTEGER NOT NULL,
       calculated_at INTEGER NOT NULL,
@@ -195,6 +193,17 @@ function createTables() {
     CREATE INDEX IF NOT EXISTS order_items_product_index ON order_items(product_id);
     CREATE INDEX IF NOT EXISTS popular_products_cache_category_index
       ON popular_products_cache(popular_category);
+  `);
+}
+
+function migrateLegacyCatalogData() {
+  rawDb.exec(`
+    DELETE FROM popular_products_cache;
+    UPDATE products
+    SET screen_inches = NULL
+    WHERE category = 'mini_pc';
+    DELETE FROM products
+    WHERE category = 'peripheral';
   `);
 }
 
@@ -277,6 +286,7 @@ export function initializeDatabase() {
   }
 
   createTables();
+  migrateLegacyCatalogData();
   seedRootAdmin();
   seedNews();
 
