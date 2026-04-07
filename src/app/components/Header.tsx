@@ -100,7 +100,7 @@ export function Header({
         </Link>
 
         <div className="hidden sm:flex flex-1 min-w-0">
-          <InputSearch placeholder="Поиск" tone="white" />
+          {/* <InputSearch placeholder="Поиск" tone="white" /> */}
         </div>
 
         <nav className="hidden md:flex items-center gap-6 xl:gap-10 shrink-0">
@@ -143,9 +143,9 @@ export function Header({
         </button>
       </div>
 
-      <div className="sm:hidden mt-2 px-0">
+      {/* <div className="sm:hidden mt-2 px-0">
         <InputSearch placeholder="Поиск" tone="white" border="strong" />
-      </div>
+      </div> */}
 
       <div
         className={[
